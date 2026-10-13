@@ -3,10 +3,16 @@ from tkinter import messagebox as msgbox
 import create
 from zlib import decompress as dcomp
 from base64 import b85decode as b85
+from os import abort
 
 width = 0
 height = 0
 mines = 0
+
+def on_close() -> None:
+    global root
+    root.destroy()
+    abort()
 
 def small_field() -> None:
     global width, height, mines
@@ -28,17 +34,27 @@ def large_field() -> None:
     root.destroy()
 def cust() -> None:
     global width, height, mines
-    width = int(entries["width"].get())
-    height = int(entries["height"].get())
-    mines = int(entries["mines"].get())
+    try:
+        width = int(entries["width"].get())
+        height = int(entries["height"].get())
+        mines = int(entries["mines"].get())
+    except:
+        width = ""
+    if width == "":
+        msgbox.showwarning("Üresen hagyott mező", "A kezdéshez midnen mezőbe kell írnod!")
+        return
+    if width < 1 or height < 1:
+        msgbox.showwarning("Nem létező mező", f"Létező aknamezőt kell létrehoznod!\n{width}*{height}=0")
+        return
     if width < height:
-        msgbox.showwarning("Rossz mezőméret", "Az aknamező nem lehet magasabb, mint amennyire széles!")
+        msgbox.showwarning("Rossz mező arányok", "Az aknamező nem lehet magasabb, mint amennyire széles!")
         return
     if mines / (width * height) > .3:
         msgbox.showwarning("Túl sok akna", "Az aknák száma nem haladhatja meg az összes mező 30%-át!")
         return
     if width > 40 or height > 20:
         msgbox.showwarning("Túl nagy mező", "Az aknamező nem lehet 40 x 20-nál nagyobb!")
+        return
     root.destroy()
 def custom_size() -> None:
     def validate_size(value: str) -> bool:
@@ -84,10 +100,6 @@ def custom_size() -> None:
     tk.Button(root, text="OK", font=("Times New Roman", 12), command=cust).grid(row=1, column=2, columnspan=2)
 
     root.mainloop()
-
-
-def on_close() -> None:
-    exit()
 
 root = tk.Tk()
 root.title("Aknakereső")
